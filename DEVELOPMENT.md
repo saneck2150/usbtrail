@@ -18,17 +18,22 @@ usbtrail -- ./flash.sh
 
 These should survive every version. If a feature violates one, it belongs in a different tool.
 
-1. **Attribution is the product.** Anything that doesn't help answer "which process caused
-   this?" is secondary.
-2. **Never guess an attribution.** An honest `[unattributed]` is worth more than a plausible
+1. **Never guess an attribution.** An honest `[unattributed]` is worth more than a plausible
    wrong PID. Silent misattribution destroys trust in a debugger.
-3. **Don't rebuild what the kernel already gives you.** `usbmon` already produces complete URB
+2. **Don't rebuild what the kernel already gives you.** `usbmon` already produces complete URB
    records. The novel part is the PID join — build only that.
-4. **Don't compete with Wireshark. Feed it.** Emit standard capture formats so protocol
+3. **Don't compete with Wireshark. Feed it.** Emit standard capture formats so protocol
    decoding stays someone else's problem.
-5. **Correlate on physical port, never on bus address.** Bus addresses change on
+4. **Correlate on physical port, never on bus address.** Bus addresses change on
    re-enumeration — which is exactly the moment the user cares about.
-6. **Ship narrow.** Every version below has an explicit non-goals list. Respect it.
+5. **Ship narrow.** Every version below has an explicit non-goals list. Respect it.
+
+---
+
+## Stack
+Spikes (v0.0): Python + bcc, or bpftrace. Fastest path to answers; throw it away.
+Product: C++ (17 or later) on libbpf + CO-RE.
+Testing: dummy_hcd + raw-gadget, driven from CI.
 
 ---
 
