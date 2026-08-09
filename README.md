@@ -28,7 +28,7 @@ USBTrail combines:
 * process tracing for command attribution
 * `udev`/sysfs for device add, remove, and re-enumeration events
 
-The goal is not to replace Wireshark, but to answer a different question:
+The goal is to answer a question:
 
 **What USB activity was caused by this command?**
 
