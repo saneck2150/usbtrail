@@ -9,7 +9,7 @@ usbtrail -- ./flash.sh
 Follows one command and all its children, and shows what they did on USB — across device
 re-enumeration. Filters by process, not by device address.
 
-**Stack:** C++17 + libbpf/CO-RE. Spikes in Python + bcc/bpftrace.
+**Stack:** C++20 + libbpf/CO-RE. Spikes in Python + bcc/bpftrace.
 
 **Requirements:** Linux 5.7 or newer, kernel BTF (`CONFIG_DEBUG_INFO_BTF`), cgroup v2, root.
 Hard-fail at startup with a clear message if `/sys/kernel/btf/vmlinux` is unreadable — there is
