@@ -11,6 +11,10 @@ re-enumeration. Filters by process, not by device address.
 
 **Stack:** C++17 + libbpf/CO-RE. Spikes in Python + bcc/bpftrace.
 
+**Requirements:** Linux 5.7 or newer, kernel BTF (`CONFIG_DEBUG_INFO_BTF`), cgroup v2, root.
+Hard-fail at startup with a clear message if `/sys/kernel/btf/vmlinux` is unreadable — there is
+no non-BTF mode.
+
 ```
 command + descendants
         │
@@ -35,7 +39,7 @@ Throwaway scripts. Verify on two kernels, then delete the code.
   matches `id` in the usbmon stream.
 - Confirm `USBDEVFS_SUBMITURB32` from 32-bit userspace reaches the same probe chain.
 - Determine whether fentry attaches to `usbdev_ioctl` or a kprobe is required.
-- Confirm `clone3(CLONE_INTO_CGROUP)` works, and the pre-5.7 fallback works below that.
+- Confirm `clone3(CLONE_INTO_CGROUP)` works.
 
 ```bash
 uname -r
@@ -48,7 +52,20 @@ sudo modprobe dummy_hcd raw_gadget && ls -l /dev/raw-gadget
 clang --version
 ```
 
-**Done:** the main experiment reproduces on two kernels.
+**Done:** 
+- BTF available ✅
+- usbdev_ioctl present in BTF ✅
+- usb_submit_urb present in BTF ✅
+- fentry/kfunc attaches to usbdev_ioctl ✅
+- fentry/kfunc attaches to usb_submit_urb ✅
+- kretfunc attaches to usbdev_ioctl ✅
+- USBDEVFS_SUBMITURB reaches usbdev_ioctl ✅
+- usb_submit_urb executes inside the same usbdev_ioctl call window ✅
+- ENTRY → SUBMIT → RETURN observed on the same TID ✅
+- usbdev_ioctl returns success ✅ 
+- struct urb * seen at usb_submit_urb matches usbmon id ✅
+- controlled USB transfer completes successfully ✅
+\
 
 **NOTE — settled by desk research, no spike needed**
 usbmon's `id` is the URB pointer, carried from submit to callback; timestamps come from
@@ -59,7 +76,8 @@ and 6.17, and `usb_submit_urb` is exported. 32-bit needs no second probe: usbfs 
 `.compat_ioctl = compat_ptr_ioctl`, which funnels back into `usbdev_ioctl`. BPF has no
 CLOCK_REALTIME helper. USB tracepoints carry no payload and are controller-specific — not
 usable. `dummy_hcd` + `raw-gadget` works without hardware, minus isochronous. BTF is a hard
-prerequisite. Root for all of v0.x.
+prerequisite, which together with `CLONE_INTO_CGROUP` sets the floor at Linux 5.7. Root for
+all of v0.x.
 
 **NOTE — `id == urb pointer` is a spike prerequisite, not a public guarantee**
 It reflects current kernel internals (`ep->id = (unsigned long) urb`). If the main experiment
@@ -210,6 +228,8 @@ plus the TAI−UTC offset is an alternative. Only worth it if the problem is rea
   DMA/scatter-gather cases aren't captured at all.
 - Isochronous transfers unsupported; `dummy_hcd` can't emulate them anyway.
 - Root required in v0.x.
+- Linux 5.7+ with kernel BTF only. Distributions shipping without `CONFIG_DEBUG_INFO_BTF` are
+  unsupported by design — no fallback mode is planned.
 - Reads all buses. Traffic from unclaimed devices is discarded in the correlator and never
   written to disk, by design.
 
