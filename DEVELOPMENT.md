@@ -31,7 +31,7 @@ timeline   pcapng
 
 ---
 
-## v0.0 — Spikes ✅
+## v0.0 — Spikes
 
 Throwaway scripts. Verify on two kernels, then delete the code.
 
@@ -65,6 +65,9 @@ clang --version
 - usbdev_ioctl returns success ✅ 
 - struct urb * seen at usb_submit_urb matches usbmon id ✅
 - controlled USB transfer completes successfully ✅
+__Other__
+- Set-up github ✅ 
+- Set-up dev environment 
 \
 
 **NOTE — settled by desk research, no spike needed**
