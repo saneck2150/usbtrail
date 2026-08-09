@@ -210,6 +210,7 @@ bpftrace --version
 ruff --version
 shfmt --version
 shellcheck --version
+./scripts/verify-dev-env.sh
 ```
 
 `id` is the preferred ownership check. The normal container intentionally uses

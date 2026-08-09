@@ -16,5 +16,6 @@ if [[ ! -r /sys/kernel/btf/vmlinux ]]; then
 fi
 
 mkdir -p "$(dirname "$output")"
-"$bpftool" btf dump file /sys/kernel/btf/vmlinux format c > "$tmp"
+
+"$bpftool" btf dump file /sys/kernel/btf/vmlinux format c >"$tmp"
 mv "$tmp" "$output"

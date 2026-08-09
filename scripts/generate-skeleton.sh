@@ -12,5 +12,6 @@ output="$3"
 tmp="${output}.tmp"
 
 mkdir -p "$(dirname "$output")"
-"$bpftool" gen skeleton "$object" > "$tmp"
+
+"$bpftool" gen skeleton "$object" >"$tmp"
 mv "$tmp" "$output"

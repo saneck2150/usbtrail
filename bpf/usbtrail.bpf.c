@@ -8,12 +8,7 @@
  * Real ENTRY -> SUBMIT -> RETURN attribution comes next.
  */
 SEC("fentry/usbdev_ioctl")
-int BPF_PROG(
-    usbtrail_usbdev_ioctl_enter,
-    struct file *file,
-    unsigned int cmd,
-    unsigned long arg)
-{
+int BPF_PROG(usbtrail_usbdev_ioctl_enter, struct file* file, unsigned int cmd, unsigned long arg) {
     (void)file;
     (void)cmd;
     (void)arg;
