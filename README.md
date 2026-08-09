@@ -2,18 +2,22 @@
 
 Process-oriented USB tracer for Linux.
 
-Runs a command and produces a single timeline of what that command and its children
-actually did with USB devices — across device re-enumeration.
+USBTrail runs a command and produces one timeline of what that command and its
+descendants actually did with USB devices, including across device
+re-enumeration.
 
-usbmon and Wireshark are tcpdump for USB: they capture a bus and show everything on it.
-USBTrail is strace for USB — it follows one command. You filter by process, not by
-device address.
+usbmon and Wireshark are effectively bus-oriented USB capture tools. USBTrail's
+goal is different:
 
-```
+> **follow a process tree first, then show its USB activity.**
+
+```bash
 usbtrail -- ./flash.sh
 ```
 
-```
+Example target output:
+
+```text
 0.012 st-flash(4473) open 001/004 [0483:3748 ST-LINK]
 0.014 st-flash(4473) CTRL OUT len=16
 1.204 st-flash(4473) BULK OUT ep=0x02 len=1024 ×248 (1.20s–3.88s, 203 KiB)
@@ -21,17 +25,69 @@ usbtrail -- ./flash.sh
 
 3.881 USB REMOVE 001/004 [0483:3748] port 1-1.4
 4.402 USB ADD 001/007 [0483:df11 STM32 BOOTLOADER] port 1-1.4
-↳ probable re-enumeration (same port, +521ms)
+      ↳ probable re-enumeration (same port, +521ms)
 
 4.410 dfu-util(4491) open 001/007
 ```
 
-Built from:
+## Development
 
-- **usbmon** — USB traffic
-- **eBPF** — exact URB-to-process attribution
-- **netlink uevent + sysfs** — device add, remove, port topology
+The project uses one Docker development image with separate normal and
+privileged integration services.
 
-Transfers that can't be attributed are marked `[unattributed]`, never guessed.
+Quick start:
 
-**Scope:** Linux, USB, command + descendants, hotplug tracking, pcapng export for Wireshark.
+```bash
+./scripts/docker-setup.sh
+docker compose run --rm dev
+```
+
+Then inside the development container:
+
+```bash
+./scripts/format-check.sh
+./scripts/lint.sh
+./scripts/build.sh
+./scripts/test.sh
+```
+
+For BPF/usbmon runtime integration:
+
+```bash
+sudo modprobe usbmon
+docker compose run --rm integration
+```
+
+Full setup and current environment acceptance checklist:
+
+[DEVELOPMENT.md](DEVELOPMENT.md)
+
+## Stack
+
+Production:
+
+- C++20;
+- C / eBPF;
+- libbpf / CO-RE;
+- CMake + Ninja.
+
+Development:
+
+- Docker Compose;
+- Python 3;
+- Bash;
+- clang-format;
+- Ruff;
+- shfmt;
+- ShellCheck.
+
+## Scope
+
+Linux USB tracing for one command + descendants, with:
+
+- exact process attribution where provable;
+- explicit `[unattributed]` events otherwise;
+- hotplug/re-enumeration tracking;
+- pcapng export for Wireshark.
+
+Protocol decoding itself remains out of scope.

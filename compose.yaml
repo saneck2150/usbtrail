@@ -1,0 +1,31 @@
+x-usbtrail-common: &usbtrail-common
+  image: usbtrail-dev:local
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+    args:
+      USER_UID: ${LOCAL_UID:-1000}
+      USER_GID: ${LOCAL_GID:-1000}
+  working_dir: /workspace
+  volumes:
+    - .:/workspace
+    - /sys/kernel/btf:/sys/kernel/btf:ro
+  stdin_open: true
+  tty: true
+
+services:
+  dev:
+    <<: *usbtrail-common
+    command: bash
+
+  integration:
+    <<: *usbtrail-common
+    user: root
+    privileged: true
+    pid: host
+    volumes:
+      - .:/workspace
+      - /sys/kernel/btf:/sys/kernel/btf:ro
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /sys/fs/bpf:/sys/fs/bpf
+    command: bash
