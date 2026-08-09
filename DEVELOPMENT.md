@@ -85,11 +85,6 @@ usable. `dummy_hcd` + `raw-gadget` works without hardware, minus isochronous. BT
 prerequisite, which together with `CLONE_INTO_CGROUP` sets the floor at Linux 5.7. Root for
 all of v0.x.
 
-**NOTE — `id == urb pointer` is a spike prerequisite, not a public guarantee**
-It reflects current kernel internals (`ep->id = (unsigned long) urb`). If the main experiment
-fails, or if that representation ever changes, fall back to `(bus, dev)` + time correlation.
-The fallback is weaker but the rest of the design survives it unchanged.
-
 ---
 
 ## v0.1 — Attributed timeline
