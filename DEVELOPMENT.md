@@ -67,8 +67,10 @@ clang --version
 - controlled USB transfer completes successfully ✅
 __Other__
 - Set-up github ✅ 
-- Set-up dev environment 
-\
+- Set-up dev environment
+
+
+
 
 **NOTE — settled by desk research, no spike needed**
 usbmon's `id` is the URB pointer, carried from submit to callback; timestamps come from
