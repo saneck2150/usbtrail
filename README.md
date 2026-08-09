@@ -1,35 +1,37 @@
 # USBTrail
 
-USBTrail is a process-oriented USB tracing tool for Linux.
+Process-oriented USB tracer for Linux.
 
-It runs a command and correlates its process tree with USB traffic and device hotplug events, producing a single timeline of what the command actually did with USB devices.
+Runs a command and produces a single timeline of what that command and its children
+actually did with USB devices — across device re-enumeration.
 
-```bash
+usbmon and Wireshark are tcpdump for USB: they capture a bus and show everything on it.
+USBTrail is strace for USB — it follows one command. You filter by process, not by
+device address.
+
+```
 usbtrail -- ./flash.sh
 ```
 
-Example output:
+```
+0.012 st-flash(4473) open 001/004 [0483:3748 ST-LINK]
+0.014 st-flash(4473) CTRL OUT len=16
+1.204 st-flash(4473) BULK OUT ep=0x02 len=1024 ×248 (1.20s–3.88s, 203 KiB)
+2.007 [unattributed] INTR IN ep=0x81 len=8 (001/004, session device)
 
-```text
-0.012  st-flash(4473)  open   001/004 [0483:3748 ST-LINK]
-0.014  st-flash(4473)  CTRL   OUT  len=16
-1.204  st-flash(4473)  BULK   OUT  ep=0x02 len=1024 ×248
+3.881 USB REMOVE 001/004 [0483:3748] port 1-1.4
+4.402 USB ADD 001/007 [0483:df11 STM32 BOOTLOADER] port 1-1.4
+↳ probable re-enumeration (same port, +521ms)
 
-3.881  USB REMOVE       001/004 [0483:3748]
-4.402  USB ADD          001/007 [0483:df11 STM32 BOOTLOADER]
-       ↳ probable re-enumeration
-
-4.410  dfu-util(4491)   open   001/007
+4.410 dfu-util(4491) open 001/007
 ```
 
-USBTrail combines:
+Built from:
 
-* `usbmon` for USB traffic
-* process tracing for command attribution
-* `udev`/sysfs for device add, remove, and re-enumeration events
+- **usbmon** — USB traffic
+- **eBPF** — exact URB-to-process attribution
+- **netlink uevent + sysfs** — device add, remove, port topology
 
-The goal is to answer a question:
+Transfers that can't be attributed are marked `[unattributed]`, never guessed.
 
-**What USB activity was caused by this command?**
-
-Initial scope: Linux, USB, command + child processes, hotplug tracking, and exportable captures.
+**Scope:** Linux, USB, command + descendants, hotplug tracking, pcapng export for Wireshark.
