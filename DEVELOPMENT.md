@@ -65,7 +65,8 @@ clang --version
 - usbdev_ioctl returns success ✅ 
 - struct urb * seen at usb_submit_urb matches usbmon id ✅
 - controlled USB transfer completes successfully ✅
-__Other__
+
+_Other_
 - Set-up github ✅ 
 - Set-up dev environment
 
