@@ -38,17 +38,18 @@ privileged integration services.
 Quick start:
 
 ```bash
-./scripts/docker-setup.sh
-docker compose run --rm dev
+./scripts/docker-setup.sh # Run once: docker container set-up
+docker compose run --rm dev # Run the container
 ```
 
-Then inside the development container:
+Then inside the development container check that all helper scripts work:
 
-```bash
-./scripts/format-check.sh
-./scripts/lint.sh
-./scripts/build.sh
-./scripts/test.sh
+```bash (docker container)
+./scripts/verify-dev-env.sh #Dev. env. correctness verification
+./scripts/format-check.sh #Checks code style formats, also a CI wf checks: shfmt (Bash), clang (C/C++) and ruff(Python)
+./scripts/lint.sh #Basic code flows analyzer
+./scripts/build.sh #Builds the project
+./scripts/test.sh #Runs tests
 ```
 
 For BPF/usbmon runtime integration:
